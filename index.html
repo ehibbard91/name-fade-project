@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Fade</title>
+    <style>
+        /* Global body styling */
+        body {
+            background-color: black; /* Black background */
+            color: white;           /* White text */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;          /* Full viewport height */
+            margin: 0;
+            overflow: hidden;       /* Prevent scrollbars */
+        }
+
+        /* Name container styling */
+        #name-container { 
+            text-align: center;
+            font-size: 2em;         /* Adjust the font size as needed */
+            font-weight: bold;
+            opacity: 0;             /* Start with fully transparent */
+            transition: opacity 1s ease-in-out; /* Smooth fade-in effect */
+        }
+
+        /* Class to trigger fade-in */
+        #name-container.fade-in {
+            opacity: 1; /* Fully visible */
+        }     
+    </style>
+</head>
+<body>
+    <div id="name-container"></div>
+
+    <script>
+    async function fetchNames() {
+        try {
+            // Fetch the names from the GitHub-hosted JSON file
+            const response = await fetch("https://raw.githubusercontent.com/ehibbard91/name-fade-project/main/names.json");
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json(); // Parse JSON
+            const names = data.names; // Access the "names" array
+
+            if (!names || names.length === 0) {
+                throw new Error("The names list is empty!");
+            }
+
+            startNameFade(names); // Start fading the names
+        } catch (error) {
+            console.error("Error fetching names:", error);
+            const nameContainer = document.getElementById("name-container");
+            nameContainer.textContent = "Error loading names. Please check console.";
+        }
+    }
+
+    function startNameFade(names) {
+        const nameContainer = document.getElementById("name-container");
+        let currentIndex = 0;
+
+        function showNextName() {
+            // Update name content
+            nameContainer.textContent = names[currentIndex];
+
+            // Trigger fade-in effect
+            nameContainer.classList.add("fade-in");
+
+            // Remove fade-in effect after transition
+            setTimeout(() => {
+                nameContainer.classList.remove("fade-in");
+
+                // Move to next name
+                currentIndex = (currentIndex + 1) % names.length;
+
+                // Continue loop with a delay
+                setTimeout(showNextName, 1000); // Delay between fade-outs
+            }, 3000); // Match fade-in/out duration
+        }
+
+        showNextName();
+    }
+
+    // Fetch names from GitHub and start the animation
+    fetchNames();
+</script>
+</body>
+</html>
